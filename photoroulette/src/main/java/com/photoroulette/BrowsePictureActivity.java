@@ -3,16 +3,26 @@ package com.photoroulette;
 import android.app.Activity;
 import android.app.LauncherActivity;
 import android.app.ListActivity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
-public class BrowsePictureActivity extends ListActivity {
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class BrowsePictureActivity extends Activity {
 
     // this is the action code we use in our intent,
     // this way we know we're looking at the response from our own action
@@ -20,24 +30,55 @@ public class BrowsePictureActivity extends ListActivity {
 
     private String selectedImagePath;
 
+    protected int counter = 0;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ((Button) findViewById(R.id.Button01))
-                .setOnClickListener(new View.OnClickListener() {
+        String[] projection = new String[]{
+                MediaStore.Images.Media.DATA,
+        };
 
-                    public void onClick(View arg0) {
+        Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        Cursor cur = managedQuery(images,
+                projection,
+                "",
+                null,
+                ""
+        );
 
-                        // in onCreate or any event where your want the user to
-                        // select a file
-                        Intent intent = new Intent();
-                        intent.setType("image/*");
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
-                        startActivityForResult(Intent.createChooser(intent,
-                                "Select Picture"), SELECT_PICTURE);
-                    }
-                });
+        final ArrayList<String> imagesPath = new ArrayList<String>();
+        if (cur.moveToFirst()) {
+
+            int dataColumn = cur.getColumnIndex(
+                    MediaStore.Images.Media.DATA);
+            do {
+                imagesPath.add(cur.getString(dataColumn));
+                Log.d("PATHHH",cur.getString(dataColumn));
+            } while (cur.moveToNext());
+        }
+        cur.close();
+        final Random random = new Random();
+        final int count = imagesPath.size();
+
+        int randomInt = random.nextInt(count-1);
+        String randomImage = imagesPath.get(randomInt);
+        Log.d("ESCOLHIDOOOO",imagesPath.get(randomInt));
+
+        File imgFile = new  File(randomImage);
+        if(imgFile.exists()){
+
+            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            /*Matrix matrix = new Matrix();
+            matrix.setRotate(90);
+            Bitmap bmpRotated = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(),myBitmap.getHeight(), matrix, false);*/
+
+            ImageView myImage = (ImageView) findViewById(R.id.imageView);
+            myImage.setImageBitmap(myBitmap);
+
+        }
+
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -45,7 +86,7 @@ public class BrowsePictureActivity extends ListActivity {
             if (requestCode == SELECT_PICTURE) {
                 Uri selectedImageUri = data.getData();
                 selectedImagePath = getPath(selectedImageUri);
-                Log.d("PATHHH",selectedImagePath);
+
             }
         }
     }
