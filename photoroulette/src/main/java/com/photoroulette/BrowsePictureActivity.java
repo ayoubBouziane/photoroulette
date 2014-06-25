@@ -2,15 +2,17 @@ package com.photoroulette;
 
 import android.app.Activity;
 import android.app.LauncherActivity;
+import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-public class BrowsePictureActivity extends LauncherActivity {
+public class BrowsePictureActivity extends ListActivity {
 
     // this is the action code we use in our intent,
     // this way we know we're looking at the response from our own action
@@ -43,6 +45,7 @@ public class BrowsePictureActivity extends LauncherActivity {
             if (requestCode == SELECT_PICTURE) {
                 Uri selectedImageUri = data.getData();
                 selectedImagePath = getPath(selectedImageUri);
+                Log.d("PATHHH",selectedImagePath);
             }
         }
     }
