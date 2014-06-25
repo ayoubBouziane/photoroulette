@@ -1,23 +1,16 @@
 package com.photoroulette;
 
 import android.app.Activity;
+import android.app.LauncherActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.Button;
 
-public class BrowsePictureActivity extends Activity {
+public class BrowsePictureActivity extends LauncherActivity {
 
     // this is the action code we use in our intent,
     // this way we know we're looking at the response from our own action
