@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.media.ExifInterface;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,7 +59,7 @@ public class BrowsePictureActivity extends Activity {
                     MediaStore.Images.Media.DATA);
             do {
                 imagesPath.add(cur.getString(dataColumn));
-                Log.d("PATHHH",cur.getString(dataColumn));
+                Log.d("PATH",cur.getString(dataColumn));
             } while (cur.moveToNext());
         }
         cur.close();
@@ -79,13 +80,24 @@ public class BrowsePictureActivity extends Activity {
 
             ImageView myImage = (ImageView) findViewById(R.id.imageView);
             myImage.setImageBitmap(myBitmap);
-
-
-
+            //String _orientation;
+            try { //photo details like orientation, are stored in the exif file from the respective photo
+                ExifInterface exif = new ExifInterface(imgFile.getPath());
+                int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                int photoRotationInDegrees = exifToDegrees(rotation);
+                Log.d("Orientation:", ""+photoRotationInDegrees+" Degree");
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
         }
+    }
 
-
-
+    private static int exifToDegrees(int exifOrientation) {
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) { return 90; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {  return 180; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
+        return 0;
     }
 
     public static Bitmap convertBitmap(String path)   {
