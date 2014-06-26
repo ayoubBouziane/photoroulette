@@ -19,6 +19,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -69,7 +72,7 @@ public class BrowsePictureActivity extends Activity {
         File imgFile = new  File(randomImage);
         if(imgFile.exists()){
 
-            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            Bitmap myBitmap = convertBitmap(imgFile.getAbsolutePath());
             /*Matrix matrix = new Matrix();
             matrix.setRotate(90);
             Bitmap bmpRotated = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(),myBitmap.getHeight(), matrix, false);*/
@@ -77,8 +80,52 @@ public class BrowsePictureActivity extends Activity {
             ImageView myImage = (ImageView) findViewById(R.id.imageView);
             myImage.setImageBitmap(myBitmap);
 
+
+
         }
 
+
+
+    }
+
+    public static Bitmap convertBitmap(String path)   {
+
+        Bitmap bitmap=null;
+        BitmapFactory.Options bfOptions=new BitmapFactory.Options();
+        bfOptions.inDither=false;                     //Disable Dithering mode
+        bfOptions.inPurgeable=true;                   //Tell to gc that whether it needs free memory, the Bitmap can be cleared
+        bfOptions.inInputShareable=true;              //Which kind of reference will be used to recover the Bitmap data after being clear, when it will be used in the future
+        bfOptions.inTempStorage=new byte[32 * 1024];
+
+
+        File file=new File(path);
+        FileInputStream fs=null;
+        try {
+            fs = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if(fs!=null)
+            {
+                bitmap=BitmapFactory.decodeFileDescriptor(fs.getFD(), null, bfOptions);
+            }
+        } catch (IOException e) {
+
+            e.printStackTrace();
+        } finally{
+            if(fs!=null) {
+                try {
+                    fs.close();
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return bitmap;
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
