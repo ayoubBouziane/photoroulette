@@ -20,8 +20,9 @@ import android.widget.ImageView;
 import android.media.ExifInterface;
 import android.widget.TextView;
 
-import com.facebook.*;
-import com.facebook.model.*;
+
+//IMPORTS DO FACEBOOK - METER AQUI
+
 
 import java.io.File;
 import java.io.FileInputStream;
