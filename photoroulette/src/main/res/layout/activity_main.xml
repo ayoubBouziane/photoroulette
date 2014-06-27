@@ -10,5 +10,15 @@
         android:layout_width="match_parent"
         android:layout_height="445dp"
         android:id="@+id/imageView"
-        android:layout_gravity="center" />
+        android:layout_gravity="center_horizontal|top" />
+
+    <TextView
+        android:layout_width="210dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Welcome"
+        android:id="@+id/welcome"
+        android:layout_gravity="center_horizontal|bottom" />
+
+
 </FrameLayout>

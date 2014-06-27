@@ -1,1 +1,1 @@
-include ':photoroulette'
+include ':photoroulette', ':facebook'

@@ -18,6 +18,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.media.ExifInterface;
+import android.widget.TextView;
+
+import com.facebook.*;
+import com.facebook.model.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,7 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class BrowsePictureActivity extends Activity {
+public class MainActivity extends Activity {
 
     // this is the action code we use in our intent,
     // this way we know we're looking at the response from our own action
@@ -68,7 +72,7 @@ public class BrowsePictureActivity extends Activity {
 
         int randomInt = random.nextInt(count-1);
         String randomImage = imagesPath.get(randomInt);
-        Log.d("ESCOLHIDOOOO",imagesPath.get(randomInt));
+        Log.d("Chosen",imagesPath.get(randomInt));
 
         File imgFile = new  File(randomImage);
         if(imgFile.exists()){
@@ -81,6 +85,7 @@ public class BrowsePictureActivity extends Activity {
             ImageView myImage = (ImageView) findViewById(R.id.imageView);
             myImage.setImageBitmap(myBitmap);
             //String _orientation;
+
             try { //photo details like orientation, are stored in the exif file from the respective photo
                 ExifInterface exif = new ExifInterface(imgFile.getPath());
                 int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
@@ -91,6 +96,30 @@ public class BrowsePictureActivity extends Activity {
                 e.printStackTrace();
             }
         }
+
+        // start Facebook Login
+        Session.openActiveSession(this, true, new Session.StatusCallback() {
+
+            // callback when session changes state
+            @Override
+            public void call(Session session, SessionState state, Exception exception) {
+                if(session.isOpened()){
+                    // make request to the /me API
+                    Request.newMeRequest(session, new Request.GraphUserCallback() {
+
+                        // callback after Graph API response with user object
+                        @Override
+                        public void onCompleted(GraphUser user, Response response) {
+                            if (user != null) {
+                                TextView welcome = (TextView) findViewById(R.id.welcome);
+                                welcome.setText("Hello " + user.getName() + "!");
+                            }
+                        }
+                    }).executeAsync();
+                }
+            }
+        });
+
     }
 
     private static int exifToDegrees(int exifOrientation) {
@@ -141,13 +170,8 @@ public class BrowsePictureActivity extends Activity {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            if (requestCode == SELECT_PICTURE) {
-                Uri selectedImageUri = data.getData();
-                selectedImagePath = getPath(selectedImageUri);
-
-            }
-        }
+        super.onActivityResult(requestCode, resultCode, data);
+        Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
     }
 
     /**
