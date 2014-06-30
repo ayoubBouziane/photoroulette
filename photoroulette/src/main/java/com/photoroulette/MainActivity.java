@@ -22,7 +22,8 @@ import android.widget.TextView;
 
 
 //IMPORTS DO FACEBOOK - METER AQUI
-
+import com.facebook.*;
+import com.facebook.model.GraphUser;
 
 import java.io.File;
 import java.io.FileInputStream;
