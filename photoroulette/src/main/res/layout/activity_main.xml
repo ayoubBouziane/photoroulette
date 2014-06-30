@@ -1,24 +1,34 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.photoroulette.MainActivity"
-    tools:ignore="MergeRootFrame" >
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="445dp"
-        android:id="@+id/imageView"
-        android:layout_gravity="center_horizontal|top" />
+    tools:context=".MainActivity" >
 
     <TextView
-        android:layout_width="210dp"
+        android:id="@+id/lblEmail"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Welcome"
-        android:id="@+id/welcome"
-        android:layout_gravity="center_horizontal|bottom" />
+        android:text="Email ID : "
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
+    <com.facebook.widget.LoginButton
+        android:id="@+id/authButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="87dp" />
 
-</FrameLayout>
+    <com.facebook.widget.ProfilePictureView
+        android:id="@+id/profilePicture"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="73dp" />
+
+</RelativeLayout>
+
