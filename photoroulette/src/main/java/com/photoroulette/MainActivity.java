@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
 
                 if (session.isOpened()) {
                     Log.i(TAG,"Access Token"+ session.getAccessToken());
-                    Request.executeMeRequestAsync(session,
+                    Request.newMeRequest(session,
                             new Request.GraphUserCallback() {
                                 @Override
                                 public void onCompleted(GraphUser user,Response response) {
@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
 
                                     }
                                 }
-                            });
+                            }).executeAsync();
                 }
 
             }
