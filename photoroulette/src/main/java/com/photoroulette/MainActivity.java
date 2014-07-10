@@ -147,6 +147,7 @@ public class MainActivity extends FragmentActivity {
                         @Override
                         public void onCompleted(Response response) {
                             buttonsEnabled(true);
+                            updateStatusBtn.setText("Play the Roulette");
                             Toast.makeText(MainActivity.this,
                                     "Photo uploaded successfully",
                                     Toast.LENGTH_LONG).show();
