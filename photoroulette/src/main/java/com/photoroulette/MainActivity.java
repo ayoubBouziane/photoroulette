@@ -2,18 +2,30 @@ package com.photoroulette;
 
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
         import java.util.List;
-        import android.content.Intent;
-        import android.graphics.Bitmap;
+import java.util.Random;
+
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
         import android.graphics.BitmapFactory;
-        import android.os.Bundle;
-        import android.support.v4.app.FragmentActivity;
+import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.v4.app.FragmentActivity;
         import android.util.Log;
         import android.view.View;
         import android.view.View.OnClickListener;
         import android.widget.Button;
-        import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.TextView;
         import android.widget.Toast;
         import com.facebook.Request;
         import com.facebook.Response;
@@ -23,20 +35,26 @@ import java.util.Arrays;
         import com.facebook.model.GraphUser;
         import com.facebook.widget.LoginButton;
         import com.facebook.widget.LoginButton.UserInfoChangedCallback;
+import com.facebook.widget.ProfilePictureView;
 
 public class MainActivity extends FragmentActivity {
 
     private LoginButton loginBtn;
     private Button postImageBtn;
     private Button updateStatusBtn;
+    private String selectedImagePath;
+    protected int counter = 0;
+    private Bitmap myBitmap = null;
 
     private TextView userName;
+    private ProfilePictureView profile_pic;
 
     private UiLifecycleHelper uiHelper;
 
     private static final List<String> PERMISSIONS = Arrays.asList("publish_actions");
 
     private static String message = "Sample status posted from android app";
+    private String selectedImage = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,26 +66,21 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
 
         userName = (TextView) findViewById(R.id.user_name);
+        profile_pic = (ProfilePictureView) findViewById(R.id.profilePicture);
         loginBtn = (LoginButton) findViewById(R.id.authButton);
         loginBtn.setUserInfoChangedCallback(new UserInfoChangedCallback() {
             @Override
             public void onUserInfoFetched(GraphUser user) {
                 if (user != null) {
                     userName.setText("Hello, " + user.getName());
+                    profile_pic.setProfileId(user.getId());
                 } else {
                     userName.setText("You are not logged");
+                    profile_pic.setProfileId(null);
                 }
             }
         });
 
-        /*postImageBtn = (Button) findViewById(R.id.post_image);
-        postImageBtn.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                postImage();
-            }
-        });*/
 
         updateStatusBtn = (Button) findViewById(R.id.update_status);
         updateStatusBtn.setOnClickListener(new OnClickListener() {
@@ -75,7 +88,32 @@ public class MainActivity extends FragmentActivity {
             @Override
             public void onClick(View v) {
 
-                postStatusMessage();
+                buttonsEnabled(false);
+                updateStatusBtn.setText("Please Wait");
+
+                selectedImage = getRandomImagePath();
+
+                File imgFile = new  File(selectedImage);
+                if(imgFile.exists()){
+
+                    myBitmap = convertBitmap(imgFile.getAbsolutePath());
+
+
+                    //String _orientation;
+                    try { //photo details like orientation, are stored in the exif file from the respective photo
+                        ExifInterface exif = new ExifInterface(imgFile.getPath());
+                        int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        int photoRotationInDegrees = exifToDegrees(rotation);
+                        Log.d("Orientation:", ""+photoRotationInDegrees+" Degree");
+                    }
+                    catch (IOException e){
+                        e.printStackTrace();
+                    }
+                }
+
+                if(myBitmap != null)
+
+                    postImage(myBitmap);
 
             }
         });
@@ -101,19 +139,21 @@ public class MainActivity extends FragmentActivity {
         updateStatusBtn.setEnabled(isEnabled);
     }
 
-    public void postImage() {
+    public void postImage(Bitmap bitmap) {
         if (checkPermissions()) {
-            Bitmap img = BitmapFactory.decodeResource(getResources(),
-                    R.drawable.ic_launcher);
+            Bitmap img = bitmap;
             Request uploadRequest = Request.newUploadPhotoRequest(
                     Session.getActiveSession(), img, new Request.Callback() {
                         @Override
                         public void onCompleted(Response response) {
+                            buttonsEnabled(true);
                             Toast.makeText(MainActivity.this,
                                     "Photo uploaded successfully",
                                     Toast.LENGTH_LONG).show();
                         }
                     });
+            Bundle params = uploadRequest.getParameters();
+            params.putString("message", "Uploaded via PhotoRoulette. Is this embarrassing?");
             uploadRequest.executeAsync();
         } else {
             requestPermissions();
@@ -183,6 +223,89 @@ public class MainActivity extends FragmentActivity {
     public void onSaveInstanceState(Bundle savedState) {
         super.onSaveInstanceState(savedState);
         uiHelper.onSaveInstanceState(savedState);
+    }
+
+    private static int exifToDegrees(int exifOrientation) {
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) { return 90; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {  return 180; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
+        return 0;
+    }
+
+    public static Bitmap convertBitmap(String path)   {
+
+        Bitmap bitmap=null;
+        BitmapFactory.Options bfOptions=new BitmapFactory.Options();
+        bfOptions.inDither=false;                     //Disable Dithering mode
+        bfOptions.inPurgeable=true;                   //Tell to gc that whether it needs free memory, the Bitmap can be cleared
+        bfOptions.inInputShareable=true;              //Which kind of reference will be used to recover the Bitmap data after being clear, when it will be used in the future
+        bfOptions.inTempStorage=new byte[32 * 1024];
+
+
+        File file=new File(path);
+        FileInputStream fs=null;
+        try {
+            fs = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if(fs!=null)
+            {
+                bitmap=BitmapFactory.decodeFileDescriptor(fs.getFD(), null, bfOptions);
+            }
+        } catch (IOException e) {
+
+            e.printStackTrace();
+        } finally{
+            if(fs!=null) {
+                try {
+                    fs.close();
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return bitmap;
+    }
+
+    public String getRandomImagePath(){
+
+        String[] projection = new String[]{
+                MediaStore.Images.Media.DATA,
+        };
+
+        Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        Cursor cur = managedQuery(images,
+                projection,
+                "",
+                null,
+                ""
+        );
+
+        final ArrayList<String> imagesPath = new ArrayList<String>();
+        if (cur.moveToFirst()) {
+
+            int dataColumn = cur.getColumnIndex(
+                    MediaStore.Images.Media.DATA);
+            do {
+                imagesPath.add(cur.getString(dataColumn));
+                Log.d("PATH",cur.getString(dataColumn));
+            } while (cur.moveToNext());
+        }
+        cur.close();
+        final Random random = new Random();
+        final int count = imagesPath.size();
+
+        int randomInt = random.nextInt(count-1);
+        String randomImage = imagesPath.get(randomInt);
+        Log.d("ESCOLHIDOOOO",imagesPath.get(randomInt));
+
+        return randomImage;
+
     }
 
 }

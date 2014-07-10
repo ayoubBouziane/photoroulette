@@ -33,7 +33,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Post"
+        android:text="Play the Roulette"
         android:id="@+id/update_status"
         android:layout_above="@+id/authButton"
         android:layout_centerHorizontal="true" />
