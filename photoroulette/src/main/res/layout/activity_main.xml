@@ -5,10 +5,10 @@
     tools:context=".MainActivity" >
 
     <TextView
-        android:id="@+id/lblEmail"
+        android:id="@+id/user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Email ID : "
+        android:text="Username : "
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
@@ -29,6 +29,14 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="73dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Post"
+        android:id="@+id/update_status"
+        android:layout_above="@+id/authButton"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
 
