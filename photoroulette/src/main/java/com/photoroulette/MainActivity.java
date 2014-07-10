@@ -280,7 +280,7 @@ public class MainActivity extends FragmentActivity {
         };
 
         Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        Cursor cur = managedQuery(images,
+        Cursor cur = this.getContentResolver().query(images,
                 projection,
                 "",
                 null,
@@ -294,7 +294,6 @@ public class MainActivity extends FragmentActivity {
                     MediaStore.Images.Media.DATA);
             do {
                 imagesPath.add(cur.getString(dataColumn));
-                Log.d("PATH",cur.getString(dataColumn));
             } while (cur.moveToNext());
         }
         cur.close();
