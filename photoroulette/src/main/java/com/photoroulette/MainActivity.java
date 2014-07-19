@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
         import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
@@ -55,6 +56,7 @@ public class MainActivity extends FragmentActivity {
 
     private static String message = "Sample status posted from android app";
     private String selectedImage = null;
+    private boolean postSuccess = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,30 +92,42 @@ public class MainActivity extends FragmentActivity {
 
                 buttonsEnabled(false);
                 updateStatusBtn.setText("Please Wait");
-
+                Log.d("buttonclicked", "before randomimagepath");
                 selectedImage = getRandomImagePath();
+                Log.d("buttonclicked", "after randomimagepath");
+
+                Log.d("buttonclicked", "before get file");
 
                 File imgFile = new  File(selectedImage);
+                Log.d("buttonclicked", "after get file");
+
                 if(imgFile.exists()){
+//                    Log.d("buttonclicked", "before convertBitmap");
+//
+//                    myBitmap = convertBitmap(imgFile.getAbsolutePath());
+//                    Log.d("buttonclicked", "after convertBitmap");
+//
+//
+//                    //String _orientation;
+//                    try { //photo details like orientation, are stored in the exif file from the respective photo
+//                        ExifInterface exif = new ExifInterface(imgFile.getPath());
+//                        int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+//                        int photoRotationInDegrees = exifToDegrees(rotation);
+//                        Log.d("Orientation:", ""+photoRotationInDegrees+" Degree");
+//                    }
+//                    catch (IOException e){
+//                        e.printStackTrace();
+//                    }
 
-                    myBitmap = convertBitmap(imgFile.getAbsolutePath());
-
-
-                    //String _orientation;
-                    try { //photo details like orientation, are stored in the exif file from the respective photo
-                        ExifInterface exif = new ExifInterface(imgFile.getPath());
-                        int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                        int photoRotationInDegrees = exifToDegrees(rotation);
-                        Log.d("Orientation:", ""+photoRotationInDegrees+" Degree");
-                    }
-                    catch (IOException e){
-                        e.printStackTrace();
-                    }
+//                    if(myBitmap != null) {
+//                        Log.d("buttonclicked", "before postimage");
+//                        postImage(myBitmap);
+//                        Log.d("buttonclicked", "after postimage");
+//                    }
+                    PhotoUploadTask _task = new PhotoUploadTask();
+                    _task.execute(imgFile.getAbsolutePath());
                 }
 
-                if(myBitmap != null)
-
-                    postImage(myBitmap);
 
             }
         });
@@ -139,26 +153,28 @@ public class MainActivity extends FragmentActivity {
         updateStatusBtn.setEnabled(isEnabled);
     }
 
-    public void postImage(Bitmap bitmap) {
+    public boolean postImage(Bitmap bitmap) {
+
+
         if (checkPermissions()) {
             Bitmap img = bitmap;
             Request uploadRequest = Request.newUploadPhotoRequest(
                     Session.getActiveSession(), img, new Request.Callback() {
                         @Override
                         public void onCompleted(Response response) {
-                            buttonsEnabled(true);
-                            updateStatusBtn.setText("Play the Roulette");
-                            Toast.makeText(MainActivity.this,
-                                    "Photo uploaded successfully",
-                                    Toast.LENGTH_LONG).show();
+                            Log.d("buttonclicked", "oncompleted");
+                            postSuccess = true;
+
                         }
                     });
             Bundle params = uploadRequest.getParameters();
             params.putString("message", "Uploaded via PhotoRoulette. Is this embarrassing?");
-            uploadRequest.executeAsync();
+
+            uploadRequest.executeAndWait();
         } else {
             requestPermissions();
         }
+        return postSuccess;
     }
 
     public void postStatusMessage() {
@@ -308,4 +324,49 @@ public class MainActivity extends FragmentActivity {
 
     }
 
+    private class PhotoUploadTask extends AsyncTask<String, Request, Boolean>{
+
+        @Override
+        protected void onProgressUpdate(Request... values) {
+            super.onProgressUpdate(values);
+
+        }
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            myBitmap = convertBitmap(strings[0]);
+            //String _orientation;
+//        try { //photo details like orientation, are stored in the exif file from the respective photo
+//            ExifInterface exif = new ExifInterface(imgFile.getPath());
+//            int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+//            int photoRotationInDegrees = exifToDegrees(rotation);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+            if (myBitmap != null) {
+                postSuccess = postImage(myBitmap);
+
+            }
+            return postSuccess;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            Log.d("onpostexecute", Boolean.toString(postSuccess));
+
+            if(result) {
+                buttonsEnabled(true);
+                updateStatusBtn.setText("Play the Roulette");
+                Toast.makeText(MainActivity.this,
+                        "Photo uploaded successfully",
+                        Toast.LENGTH_LONG).show();
+            }
+            else
+                Toast.makeText(MainActivity.this,
+                        "Photo upload failed",
+                        Toast.LENGTH_LONG).show();
+        }
+
+    }
 }
