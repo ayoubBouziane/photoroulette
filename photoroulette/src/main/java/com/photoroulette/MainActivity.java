@@ -8,34 +8,35 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-        import java.util.List;
+import java.util.List;
 import java.util.Random;
 
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-        import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
-        import android.util.Log;
-        import android.view.View;
-        import android.view.View.OnClickListener;
-        import android.widget.Button;
-import android.widget.ImageView;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
-        import android.widget.Toast;
-        import com.facebook.Request;
-        import com.facebook.Response;
-        import com.facebook.Session;
-        import com.facebook.SessionState;
-        import com.facebook.UiLifecycleHelper;
-        import com.facebook.model.GraphUser;
-        import com.facebook.widget.LoginButton;
-        import com.facebook.widget.LoginButton.UserInfoChangedCallback;
+import android.widget.Toast;
+import com.facebook.Request;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.UiLifecycleHelper;
+import com.facebook.model.GraphUser;
+import com.facebook.widget.LoginButton;
+import com.facebook.widget.LoginButton.UserInfoChangedCallback;
 import com.facebook.widget.ProfilePictureView;
+import com.photoroulette.network.DiscoverServices;
+import com.photoroulette.network.RegisterService;
 
 public class MainActivity extends FragmentActivity {
 
@@ -45,6 +46,8 @@ public class MainActivity extends FragmentActivity {
     private String selectedImagePath;
     protected int counter = 0;
     private Bitmap myBitmap = null;
+    private Button registerService;
+    private Button discoverServices;
 
     private TextView userName;
     private ProfilePictureView profile_pic;
@@ -78,6 +81,24 @@ public class MainActivity extends FragmentActivity {
                     userName.setText("You are not logged");
                     profile_pic.setProfileId(null);
                 }
+            }
+        });
+
+        registerService = (Button)findViewById(R.id.registerService);
+        registerService.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, RegisterService.class);
+                startActivity(intent);
+            }
+        });
+
+        discoverServices = (Button)findViewById(R.id.discoverServices);
+        discoverServices.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, DiscoverServices.class);
+                startActivity(intent);
             }
         });
 

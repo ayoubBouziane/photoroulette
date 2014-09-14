@@ -17,9 +17,8 @@
         android:id="@+id/authButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="87dp" />
+        android:layout_below="@+id/update_status"
+        android:layout_centerHorizontal="true" />
 
     <com.facebook.widget.ProfilePictureView
         android:id="@+id/profilePicture"
@@ -35,7 +34,24 @@
         android:layout_height="wrap_content"
         android:text="Play the Roulette"
         android:id="@+id/update_status"
-        android:layout_above="@+id/authButton"
+        android:layout_below="@+id/user_name"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register Service"
+        android:id="@+id/registerService"
+        android:layout_below="@+id/authButton"
+        android:layout_alignRight="@+id/update_status"
+        android:layout_alignEnd="@+id/update_status" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Discover Services"
+        android:id="@+id/discoverServices"
+        android:layout_below="@+id/registerService"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

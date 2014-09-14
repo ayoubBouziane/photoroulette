@@ -13,5 +13,7 @@
     <string name="successfully_posted_post">Successfully posted post!</string>
     <string name="error">Error!</string>
     <string name="status_update">Teste</string>
+    <string name="title_activity_register_service">RegisterService</string>
+    <string name="title_activity_discover_services">DiscoverServices</string>
 
 </resources>
